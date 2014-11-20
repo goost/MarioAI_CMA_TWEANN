@@ -1,5 +1,0 @@
-cmake_minimum_required(VERSION 2.8)
-set(CMAKE_BUILD_TYPE "Release")
-#set(EIGEN_DIRECTORY . CACHE STRING "Eigen directory. The directory specified should have a subdirectory 'Eigen'.")
-include_directories(${PROJECT_SOURCE_DIR}/Eigen)
-add_library( jCMATWEANN SHARED jCMATWEANN.cpp )
