@@ -1,5 +1,3 @@
-package de.goost.jcmatweann;
-
 /**
  * Copyright (c) 2014/11, Gleb Ostrowski, glebos at web dot de
  * All rights reserved.
@@ -27,22 +25,33 @@ package de.goost.jcmatweann;
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-public class NeuralNet {
-
-    private long _pt; //pointer (handler), RAM address of the native object
-
-    public NeuralNet(long pt) {
-        setPt(pt);
+#include "de_goost_jcmatweann_NeuralNet.h"
+#include "pointerMagic.h"
+#include "cmatweann/nn.h"
+using namespace goost;
+jdoubleArray Java_de_goost_jcmatweann_NeuralNet_activate
+        (JNIEnv* env, jobject obj, jdoubleArray inputsArray, jint outputSize) {
+    NN* nnPt = getPointer<NN>(env, obj);
+    //Transfer the input_jdoubleArray to a VectorXd for using as input
+    jdouble* inputs = env->GetDoubleArrayElements(inputsArray, NULL);
+    if (NULL == inputs) return NULL;
+    jsize inputLength = env->GetArrayLength(inputsArray);
+    VectorXd inputVector = VectorXd::Zero(inputLength);
+    for(int cnt = 0; cnt < inputLength; cnt ++){
+        inputVector[cnt] = inputs[cnt];
     }
+    //activate NeuralNet
+    VectorXd outputVector = VectorXd::Zero(outputSize);
+    nnPt->activate(inputVector, outputVector);
 
-    public native double[] activate(double[] inputs, int outputSize);
-
-    /*GETTER AND SETTER BELOW */
-    public long getPt() {
-        return _pt;
+    //transfer the outputVectorXd to an jdoubleArray and return
+    jdouble* outputs = new jdouble[outputSize];
+    for(int cnt = 0; cnt < outputSize; cnt ++){
+        outputs[cnt] = outputVector[cnt];
     }
-
-    public void setPt(long pt) {
-        _pt = pt;
-    }
+    jdoubleArray outputsArray = env->NewDoubleArray(outputSize);  // allocate
+    if (NULL == outputsArray) return NULL;
+    env->SetDoubleArrayRegion(outputsArray, 0, outputSize, outputs);  // copy
+    delete[] outputs;
+    return outputsArray;
 }

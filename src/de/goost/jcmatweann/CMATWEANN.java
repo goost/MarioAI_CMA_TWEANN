@@ -1,7 +1,7 @@
 package de.goost.jcmatweann;
 
 /**
- * Copyright (c) 2014/11, Gleb Ostrowski
+ * Copyright (c) 2014/11, Gleb Ostrowski, glebos at web dot de
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,17 +29,17 @@ package de.goost.jcmatweann;
 
 public class CMATWEANN {
 
-    public class GetPoiterFailedException extends Exception{
-        public GetPoiterFailedException(String reason){
+    public class GetPointerFailedException extends Exception{
+        public GetPointerFailedException(String reason){
             super(reason);
         }
     }
 
     private long _pt; //pointer (handler), RAM address of the native object
 
-    public CMATWEANN(int numIn, int numOut, int numHid, double sigma, double sigmaMin, double probNode, double probEdge, boolean bFF) throws GetPoiterFailedException {
+    public CMATWEANN(int numIn, int numOut, int numHid, double sigma, double sigmaMin, double probNode, double probEdge, boolean bFF) throws GetPointerFailedException {
         long pt = generateCMATWEANN(numIn, numOut, numHid, sigma, sigmaMin, probNode, probEdge, bFF);
-        if(pt == 0) throw new GetPoiterFailedException("Contructor: Received Handler is ZERO!");
+        if(pt == 0) throw new GetPointerFailedException("Contructor: Received Handler is ZERO!");
         setPt(pt);
 
     }
@@ -47,9 +47,9 @@ public class CMATWEANN {
     public native int getPopSize();
 
     //method calls getNNNative and wraps the received handler in a NeuralNet-Object
-    public NeuralNet getNN(int nnID) throws GetPoiterFailedException {
+    public NeuralNet getNN(int nnID) throws GetPointerFailedException {
         long pt = getNNNative(nnID);
-        if(pt == 0) throw new GetPoiterFailedException("GetNN: Received Handler is ZERO!");
+        if(pt == 0) throw new GetPointerFailedException("GetNN: Received Handler is ZERO!");
         return new NeuralNet(pt);
     }
 

@@ -40,7 +40,7 @@ public:
     
     NN(NN* nn):
     numIn(nn->numIn), numOut(nn->numOut), numHid(nn->numHid), connectionMatrix(nn->connectionMatrix), weight(nn->weight), bFF(nn->bFF), node(nn->node), delay(nn->delay), inputs(nn->inputs){}
-    
+
     inline double inverseSigmoid(double x){
         if(x < 0){
             return x/(x+1.);

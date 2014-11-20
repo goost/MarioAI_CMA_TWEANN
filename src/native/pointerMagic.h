@@ -1,5 +1,10 @@
-package de.goost.jcmatweann;
-
+#ifndef POINTERMAGIC_H
+#define POINTERMAGIC_H
+/* Code is taken from
+ * http://thebreakfastpost.com/2012/01/26/wrapping-a-c-library-with-jni-part-2/
+ * Thanks for the great tutorial!
+*/
+namespace goost{
 /**
  * Copyright (c) 2014/11, Gleb Ostrowski, glebos at web dot de
  * All rights reserved.
@@ -27,22 +32,24 @@ package de.goost.jcmatweann;
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-public class NeuralNet {
+#include "jni.h"
 
-    private long _pt; //pointer (handler), RAM address of the native object
-
-    public NeuralNet(long pt) {
-        setPt(pt);
-    }
-
-    public native double[] activate(double[] inputs, int outputSize);
-
-    /*GETTER AND SETTER BELOW */
-    public long getPt() {
-        return _pt;
-    }
-
-    public void setPt(long pt) {
-        _pt = pt;
-    }
+jfieldID getPointerField(JNIEnv* env, jobject obj){
+    jclass c = env->GetObjectClass(obj);
+    //"J" for long
+    return env->GetFieldID(c, "_pt", "J");
 }
+
+template <typename T>
+T* getPointer(JNIEnv* env, jobject obj){
+    jlong pointer = env->GetLongField(obj, getPointerField(env, obj));
+    return reinterpret_cast<T*>(pointer);
+}
+
+template <typename T>
+void setPointer(JNIEnv* env, jobject obj, T* t){
+    jlong pointer = reinterpret_cast<jlong>(t);
+    env->SetLongField(obj, getPointerField(env, obj), pointer);
+}
+}
+#endif
