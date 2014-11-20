@@ -1,0 +1,40 @@
+**
+Copyright (C) 2012 Hirotaka Moriguchi <hm346@cornell.edu>
+
+CMA-TWEANN is free software that implements efficient algorithm to optimize neural 
+network topology and weight parameters.
+
+For further details, you may refer to our paper "CMA-TWEANN: Efficient Optimization of
+Neural Networks via Self-adaptation and Seamless Augmentation" presented @ GECCO'12.
+
+author: Hirotaka Moriguchi (http://www.honiden.nii.ac.jp/~hmori)
+contact: hm346@cornell.edu
+final update: Jul. 16, 2012
+generated: Apr. 13, 2012
+requirement: g++, Eigen library (ver. 3.0.4)
+**
+
+* Release note *
+Jul. 16, 2012:
+Bugs on individual ranking and damping parameters are fixed.
+
+* Abstract *
+CMA-TWEANN software is provided as header files.
+The main header is "cmat.h".
+Accompanying header "nn.h" is automatically included from cmat.h.
+
+* File structure *
+CMATWEANN
+|-cmat.h: Main header file that should be included by a program that uses CMA-TWEANN
+|-nn.h 
+|
+|-prob.h: Pole-balancing benchmark introduced in the GECCO paper
+|-test.cpp: Test program that solves pole-balancing task using CMA-TWEANN
+|
+|-Eigen: Third party library for efficient linear algebra computation
+
+* Usage *
+Including "cmat.h" does everything.
+cmat.h, nn.h, and Eigen library should be located as described above.
+
+Sample program in test.cpp is a good starting point to understand the usage of cmat.h.
