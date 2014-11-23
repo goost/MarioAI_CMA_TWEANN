@@ -35,8 +35,8 @@ public class WrapperTest {
             CMATWEANN t = new CMATWEANN(3,10,1,1,0.2,0.4,0.5,false);
             t.produceOffspring();
             System.out.println(t.getPopSize());
-            System.out.println(Arrays.toString(t.getNN(0).activate(new double[]{2, 3, 4}, 10)));
-            for (int i = 0; i < 30; i++) {
+            System.out.println(Arrays.toString(t.activate(0,new double[]{2, 3, 4}, 10)));
+            for (int i = 0; i < 1; i++) {
                 //System.out.println(t.getPopSize());
                 t.setScore(0,3);
                 t.setScore(1,23);
@@ -46,7 +46,7 @@ public class WrapperTest {
                 t.setScore(5,3);
                 t.proceedGen();
             }
-            System.out.println(Arrays.toString(t.getNN(0).activate(new double[]{2, 3, 4},10)) );
+            System.out.println(Arrays.toString(t.activate(0,new double[]{2, 3, 4},10)) );
         } catch (CMATWEANN.GetPointerFailedException e) {
             System.err.println("ERROOR");
         }

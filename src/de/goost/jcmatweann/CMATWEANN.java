@@ -46,12 +46,12 @@ public class CMATWEANN {
 
     public native int getPopSize();
 
-    //method calls getNNNative and wraps the received handler in a NeuralNet-Object
+    /*//method calls getNNNative and wraps the received handler in a NeuralNet-Object
     public NeuralNet getNN(int nnID) throws GetPointerFailedException {
         long pt = getNNNative(nnID);
         if(pt == 0) throw new GetPointerFailedException("GetNN: Received Handler is ZERO!");
         return new NeuralNet(pt);
-    }
+    }*/
 
     public native void setScore(int nnID, double tmpScore);
 
@@ -68,6 +68,7 @@ public class CMATWEANN {
     //Constructs the CMA-TWEANN in native Code and returns the pointer
     private native long generateCMATWEANN(int numIn, int numOut, int numHid, double sigma, double sigmaMin, double probNode, double probEdge, boolean bFF);
 
+    public native double[] activate(int nnID, double[] inputs, int outputSize);
 
     /*GETTER AND SETTER BELOW*/
     public void setPt(long _pt) {
