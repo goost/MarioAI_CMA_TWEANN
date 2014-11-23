@@ -78,5 +78,9 @@ public class CMATWEANN {
         return _pt;
     }
 
+    static {
+        System.loadLibrary("jcmatweann");
+    }
+
 }
 

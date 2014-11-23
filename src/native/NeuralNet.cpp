@@ -28,6 +28,7 @@
 #include "de_goost_jcmatweann_NeuralNet.h"
 #include "pointerMagic.h"
 #include "cmatweann/nn.h"
+//#include "myHeader.h"
 using namespace goost;
 jdoubleArray Java_de_goost_jcmatweann_NeuralNet_activate
         (JNIEnv* env, jobject obj, jdoubleArray inputsArray, jint outputSize) {

@@ -28,8 +28,12 @@
 #include "de_goost_jcmatweann_CMATWEANN.h"
 #include "pointerMagic.h"
 #include "cmatweann/cmat.h"
+//#include "myHeader.h"
+//#include "NeuralNet.cpp"
 
 using namespace goost;
+
+
 jint Java_de_goost_jcmatweann_CMATWEANN_getPopSize
   (JNIEnv* env, jobject obj){
     CMATWEANN* cmannPt = getPointer<CMATWEANN>(env, obj);

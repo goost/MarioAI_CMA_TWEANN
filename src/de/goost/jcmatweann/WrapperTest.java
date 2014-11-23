@@ -1,5 +1,7 @@
 package de.goost.jcmatweann;
 
+import java.util.Arrays;
+
 /**
  * Copyright (c) 2014/11, Gleb Ostrowski, glebos at web dot de
  * All rights reserved.
@@ -26,27 +28,28 @@ package de.goost.jcmatweann;
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+public class WrapperTest {
 
-public class NeuralNet {
+    public static void main(String[] args) {
+        try {
+            CMATWEANN t = new CMATWEANN(3,10,1,1,0.2,0.4,0.5,false);
+            t.produceOffspring();
+            System.out.println(t.getPopSize());
+            System.out.println(Arrays.toString(t.getNN(0).activate(new double[]{2, 3, 4}, 10)));
+            for (int i = 0; i < 30; i++) {
+                //System.out.println(t.getPopSize());
+                t.setScore(0,3);
+                t.setScore(1,23);
+                t.setScore(2,54);
+                t.setScore(3,3);
+                t.setScore(4,445);
+                t.setScore(5,3);
+                t.proceedGen();
+            }
+            System.out.println(Arrays.toString(t.getNN(0).activate(new double[]{2, 3, 4},10)) );
+        } catch (CMATWEANN.GetPointerFailedException e) {
+            System.err.println("ERROOR");
+        }
 
-    private long _pt; //pointer (handler), RAM address of the native object
-
-    public NeuralNet(long pt) {
-        setPt(pt);
-    }
-
-    public native double[] activate(double[] inputs, int outputSize);
-
-    /*GETTER AND SETTER BELOW */
-    public long getPt() {
-        return _pt;
-    }
-
-    public void setPt(long pt) {
-        _pt = pt;
-    }
-
-    static {
-        System.loadLibrary("jcmatweann");
     }
 }
