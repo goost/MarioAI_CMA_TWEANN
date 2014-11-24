@@ -70,6 +70,9 @@ public class CMATWEANN {
 
     public native double[] activate(int nnID, double[] inputs, int outputSize);
 
+    //TODO RENAME AND RECOMPILE LIB
+    public native double[] activateBest(double[] inputs, int outputSize);
+
     /*GETTER AND SETTER BELOW*/
     public void setPt(long _pt) {
         this._pt = _pt;

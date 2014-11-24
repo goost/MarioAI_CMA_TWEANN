@@ -71,6 +71,14 @@ JNIEXPORT jlong JNICALL Java_de_goost_jcmatweann_CMATWEANN_generateCMATWEANN
 JNIEXPORT jdoubleArray JNICALL Java_de_goost_jcmatweann_CMATWEANN_activate
   (JNIEnv *, jobject, jint, jdoubleArray, jint);
 
+/*
+ * Class:     de_goost_jcmatweann_CMATWEANN
+ * Method:    activateBest
+ * Signature: ([DI)[D
+ */
+JNIEXPORT jdoubleArray JNICALL Java_de_goost_jcmatweann_CMATWEANN_activateBest
+  (JNIEnv *, jobject, jdoubleArray, jint);
+
 #ifdef __cplusplus
 }
 #endif

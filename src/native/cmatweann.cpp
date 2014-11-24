@@ -78,34 +78,41 @@ jlong Java_de_goost_jcmatweann_CMATWEANN_generateCMATWEANN
     return reinterpret_cast<jlong>(new CMATWEANN(numIn, numOut, numHid, sigma, sigmaMin, probNode, probEdge, bff));
     }
 
+jdoubleArray activateHelper
+        (JNIEnv* env, NN* nnPt , jdoubleArray inputsArray, jint outputSize){
+          //Transfer the input_jdoubleArray to a VectorXd for using as input
+          jdouble* inputs = env->GetDoubleArrayElements(inputsArray, NULL);
+          if (NULL == inputs) return NULL;
+          jsize inputLength = env->GetArrayLength(inputsArray);
+          VectorXd inputVector = VectorXd::Zero(inputLength);
+          for(int cnt = 0; cnt < inputLength; cnt ++){
+            inputVector[cnt] = inputs[cnt];
+          }
+          env->ReleaseDoubleArrayElements(inputsArray, inputs, 0);
+          //activate NeuralNet
+          VectorXd outputVector = VectorXd::Zero(outputSize);
+          nnPt->activate(inputVector, outputVector);
+
+         //transfer the outputVectorXd to an jdoubleArray and return
+          jdouble* outputs = new jdouble[outputSize];
+          for(int cnt = 0; cnt < outputSize; cnt ++){
+             outputs[cnt] = outputVector[cnt];
+          }
+          jdoubleArray outputsArray = env->NewDoubleArray(outputSize);  // allocate
+          if (NULL == outputsArray) return NULL;
+          env->SetDoubleArrayRegion(outputsArray, 0, outputSize, outputs);  // copy
+          delete[] outputs;
+          return outputsArray;
+        }
+
 jdoubleArray Java_de_goost_jcmatweann_CMATWEANN_activate
       (JNIEnv* env, jobject obj, jint nnID, jdoubleArray inputsArray, jint outputSize){
         NN* nnPt = getPointer<CMATWEANN>(env, obj)->getNN(nnID);
-        //Transfer the input_jdoubleArray to a VectorXd for using as input
-        jdouble* inputs = env->GetDoubleArrayElements(inputsArray, NULL);
-        if (NULL == inputs) return NULL;
-        jsize inputLength = env->GetArrayLength(inputsArray);
-      //  printf("InputArraySize: %i\n", inputLength);
-        VectorXd inputVector = VectorXd::Zero(inputLength);
-        for(int cnt = 0; cnt < inputLength; cnt ++){
-          inputVector[cnt] = inputs[cnt];
-        //  printf("InputArrayElement %i : %f\n", cnt, inputs[cnt]);
-         // printf("InputVectorElement %i : %f\n", cnt, inputVector[cnt]);
-        }
-        //activate NeuralNet
-        VectorXd outputVector = VectorXd::Zero(outputSize);
-        nnPt->activate(inputVector, outputVector);
-
-        //transfer the outputVectorXd to an jdoubleArray and return
-        jdouble* outputs = new jdouble[outputSize];
-        for(int cnt = 0; cnt < outputSize; cnt ++){
-            outputs[cnt] = outputVector[cnt];
-            //printf("OutputArrayElement %i : %f\n", cnt, outputs[cnt]);
-            //printf("OutputVectorElement %i : %f\n", cnt, outputVector[cnt]);
-        }
-        jdoubleArray outputsArray = env->NewDoubleArray(outputSize);  // allocate
-        if (NULL == outputsArray) return NULL;
-        env->SetDoubleArrayRegion(outputsArray, 0, outputSize, outputs);  // copy
-        delete[] outputs;
-        return outputsArray;
+        return activateHelper(env,nnPt, inputsArray, outputSize);
       }
+
+jdoubleArray Java_de_goost_jcmatweann_CMATWEANN_activateBest
+       (JNIEnv* env, jobject obj, jdoubleArray inputsArray, jint outputSize){
+         NN* nnPt = getPointer<CMATWEANN>(env, obj)->getBestNN();
+         return activateHelper(env,nnPt, inputsArray, outputSize);
+        }

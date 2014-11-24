@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project( jcmatweann )
 
 find_package(Java REQUIRED)
-#find_package(JNI REQUIRED)
+find_package(JNI REQUIRED)
 #include(UseJava)
 
 # compile de.goost.jcmatweann.NeuralNet.java and de.goost.jcmatweann.CMATWEANN.java
