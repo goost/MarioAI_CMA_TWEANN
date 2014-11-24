@@ -85,12 +85,12 @@ jdoubleArray Java_de_goost_jcmatweann_CMATWEANN_activate
         jdouble* inputs = env->GetDoubleArrayElements(inputsArray, NULL);
         if (NULL == inputs) return NULL;
         jsize inputLength = env->GetArrayLength(inputsArray);
-        printf("InputArraySize: %i\n", inputLength);
+      //  printf("InputArraySize: %i\n", inputLength);
         VectorXd inputVector = VectorXd::Zero(inputLength);
         for(int cnt = 0; cnt < inputLength; cnt ++){
           inputVector[cnt] = inputs[cnt];
-          printf("InputArrayElement %i : %f\n", cnt, inputs[cnt]);
-          printf("InputVectorElement %i : %f\n", cnt, inputVector[cnt]);
+        //  printf("InputArrayElement %i : %f\n", cnt, inputs[cnt]);
+         // printf("InputVectorElement %i : %f\n", cnt, inputVector[cnt]);
         }
         //activate NeuralNet
         VectorXd outputVector = VectorXd::Zero(outputSize);
@@ -100,8 +100,8 @@ jdoubleArray Java_de_goost_jcmatweann_CMATWEANN_activate
         jdouble* outputs = new jdouble[outputSize];
         for(int cnt = 0; cnt < outputSize; cnt ++){
             outputs[cnt] = outputVector[cnt];
-            printf("OutputArrayElement %i : %f\n", cnt, outputs[cnt]);
-            printf("OutputVectorElement %i : %f\n", cnt, outputVector[cnt]);
+            //printf("OutputArrayElement %i : %f\n", cnt, outputs[cnt]);
+            //printf("OutputVectorElement %i : %f\n", cnt, outputVector[cnt]);
         }
         jdoubleArray outputsArray = env->NewDoubleArray(outputSize);  // allocate
         if (NULL == outputsArray) return NULL;

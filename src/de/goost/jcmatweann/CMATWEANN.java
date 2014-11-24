@@ -80,7 +80,7 @@ public class CMATWEANN {
     }
 
     static {
-        System.loadLibrary("libjcmatweann");
+        System.loadLibrary("jcmatweann");
     }
 
 }

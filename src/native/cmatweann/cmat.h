@@ -5,8 +5,7 @@
 //
 
 /* GLeb Ostrowski:
-*  Changed all the random() calls on lines:
-*  292, 295, 297, 304, 305
+*  Changed all random() calls on marked lines
 *  to rand() calls, otherwise it would not compile
 */
 
@@ -290,20 +289,20 @@ class CMATWEANN{
     if(bestscore > score[rank[0]]) bestscore = score[rank[0]];
     /* augment topology here if needed */
     // update wmap
-    double rand_mut = (double)rand()/(double)RAND_MAX;
+    double rand_mut = (double)rand()/(double)RAND_MAX; //changed random
     if(rand_mut < probNode){
       expandMiC(connectionMatrix,1,1,-1);
-      connectionMatrix(rand()%(numIn+numOut+numHid),numOut+numHid) = nctr;
+      connectionMatrix(rand()%(numIn+numOut+numHid),numOut+numHid) = nctr; //changed random
       nctr++;
-      connectionMatrix(numIn+numOut+numHid,(rand()%(numOut+numHid))) = nctr;
+      connectionMatrix(numIn+numOut+numHid,(rand()%(numOut+numHid))) = nctr; //Changed random
       nctr++;
       updateCMAParameters(2,1);
       nn = new NN(numIn, numOut, numHid, connectionMatrix, xbase, bFF);
     }else if(rand_mut < (probNode+probEdge) && connectionMatrix.minCoeff() < 0){
       double rand_row, rand_col;
       while(1){
-	rand_row = rand()%(numIn+numOut+numHid);
-	rand_col = rand()%(numOut+numHid);
+	rand_row = rand()%(numIn+numOut+numHid); //changed random
+	rand_col = rand()%(numOut+numHid); //changed random
 	if(connectionMatrix(rand_row,rand_col) == -1) {
 	  connectionMatrix(rand_row,rand_col) = nctr;
 	  nctr++;
