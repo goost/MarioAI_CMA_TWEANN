@@ -98,7 +98,6 @@ jdoubleArray Java_de_goost_jcmatweann_CMATWEANN_activate
 
         //transfer the outputVectorXd to an jdoubleArray and return
         jdouble* outputs = new jdouble[outputSize];
-        outputs
         for(int cnt = 0; cnt < outputSize; cnt ++){
             outputs[cnt] = outputVector[cnt];
             printf("OutputArrayElement %i : %f\n", cnt, outputs[cnt]);

@@ -3,7 +3,7 @@
 <project name="jcmatweann" basedir="." default ="cmake">
 
     <property name="build.src.dir" value="../lib/build" />
-    <property name="src.dir" value="." />
+    <property name="src.dir" value="./native" />
 
 
     <taskdef name="cmake" 
