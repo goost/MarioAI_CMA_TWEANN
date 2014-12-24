@@ -4,6 +4,12 @@
 //  Created by Hirotaka Moriguchi
 //
 
+/* GLeb Ostrowski:
+*  Changed all random() calls on marked lines
+*  to rand() calls, otherwise it would not compile
+*  applies only to windows, current status REVERTED
+*/
+
 #ifndef CMAT_cmat_h
 #define CMAT_cmat_h
 
@@ -284,20 +290,20 @@ class CMATWEANN{
     if(bestscore > score[rank[0]]) bestscore = score[rank[0]];
     /* augment topology here if needed */
     // update wmap
-    double rand_mut = (double)random()/(double)RAND_MAX;
+    double rand_mut = (double)random()/(double)RAND_MAX; //changed random
     if(rand_mut < probNode){
       expandMiC(connectionMatrix,1,1,-1);
-      connectionMatrix(random()%(numIn+numOut+numHid),numOut+numHid) = nctr;
+      connectionMatrix(rand()%(numIn+numOut+numHid),numOut+numHid) = nctr; //changed random
       nctr++;
-      connectionMatrix(numIn+numOut+numHid,(random()%(numOut+numHid))) = nctr;
+      connectionMatrix(numIn+numOut+numHid,(random()%(numOut+numHid))) = nctr; //Changed random
       nctr++;
       updateCMAParameters(2,1);
       nn = new NN(numIn, numOut, numHid, connectionMatrix, xbase, bFF);
     }else if(rand_mut < (probNode+probEdge) && connectionMatrix.minCoeff() < 0){
       double rand_row, rand_col;
       while(1){
-	rand_row = random()%(numIn+numOut+numHid);
-	rand_col = random()%(numOut+numHid);
+	rand_row = random()%(numIn+numOut+numHid); //changed random
+	rand_col = random()%(numOut+numHid); //changed random
 	if(connectionMatrix(rand_row,rand_col) == -1) {
 	  connectionMatrix(rand_row,rand_col) = nctr;
 	  nctr++;
@@ -317,6 +323,19 @@ class CMATWEANN{
     if(sigma*D(dim-1,dim-1) < sigmaMin*sigmaInit)
       sigma = sigmaMin*sigmaInit/D(dim-1,dim-1);
   }
+
+  //added by Gleb Ostrowski for retrieving the best NN
+  NN* getBestNN(){
+    vector<pair<double, int> > rankScore(lambda);
+    for(int i = 0; i < lambda; i++){
+      rankScore[i] = make_pair(score[i],i);
+    }
+    sort(rankScore.begin(), rankScore.end(), scoreComp);
+    std::cout << "Best Score: " <<rankScore[0].first <<" FromNNNummer: "<<  rankScore[0].second << std::endl;
+    std::cout << "Worst Score: " <<rankScore[lambda-1].first <<" FromNNNummer: "<<  rankScore[lambda-1].second << std::endl;
+    return getNN(rankScore[0].second);
+  }
+
 };
 
 #endif
