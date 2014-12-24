@@ -12,7 +12,6 @@ find_package(JNI REQUIRED)
 #get_target_property(_classDir jcmatweann CLASSDIR)
 
 
-# generate libfoo.jnilib
 set(CMAKE_BUILD_TYPE "Release")
 set(projectpath ${PROJECT_SOURCE_DIR}/native)
 set(header ${projectpath}/cmatweann/Eigen ${projectpath}/cmatweann/cmat.h ${projectpath}/cmatweann/nn.h ${projectpath}/de_goost_jcmatweann_CMATWEANN.h )

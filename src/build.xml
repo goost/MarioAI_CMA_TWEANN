@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-
+<!-- DO NOT USE, not working -->
 <project name="jcmatweann" basedir="." default ="cmake">
 
     <property name="build.src.dir" value="../lib/build" />
