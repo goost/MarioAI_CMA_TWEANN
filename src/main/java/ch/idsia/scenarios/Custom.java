@@ -50,6 +50,7 @@ public static void main(String[] args)
 //final String argsString = "-vis on";
     final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
     final Agent agent = new ForwardAgent();
+    marioAIOptions.setAgent(agent);
     final BasicTask basicTask = new BasicTask(marioAIOptions);
     for (int i = 0; i < 10; ++i)
     {

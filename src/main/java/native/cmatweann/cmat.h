@@ -7,7 +7,7 @@
 /* GLeb Ostrowski:
 *  Changed all random() calls on marked lines
 *  to rand() calls, otherwise it would not compile
-*  applies only to windows, current status REVERTED
+*  applies only to windows, current status REVERTED NOT NEEDED ON LINUX
 */
 
 #ifndef CMAT_cmat_h
@@ -69,7 +69,7 @@ class CMATWEANN{
   }
 
   inline void initializeCMAParameters(){
-    lambda = max((int)(4+(int)(3*log(dim))),5);
+    lambda = max( (int) ( 4 + (int) (3*log(dim))) , 5 );
     mu = (int)(lambda/2);
     cc = (4./(4.+(double)dim));
         

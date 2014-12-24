@@ -6,12 +6,13 @@ find_package(Java REQUIRED)
 find_package(JNI REQUIRED)
 #include(UseJava)
 
-# NOT WORKIG compile de.goost.jcmatweann.NeuralNet.java and de.goost.jcmatweann.CMATWEANN.java
+# compile de.goost.jcmatweann.NeuralNet.java and de.goost.jcmatweann.CMATWEANN.java
 #add_jar(jcmatweann de.goost.jcmatweann.NeuralNet.java de.goost.jcmatweann.CMATWEANN.java)
 #get_target_property(_jarFile jcmatweann JAR_FILE)
 #get_target_property(_classDir jcmatweann CLASSDIR)
 
 
+# generate libfoo.jnilib
 set(CMAKE_BUILD_TYPE "Release")
 set(projectpath ${PROJECT_SOURCE_DIR}/native)
 set(header ${projectpath}/cmatweann/Eigen ${projectpath}/cmatweann/cmat.h ${projectpath}/cmatweann/nn.h ${projectpath}/de_goost_jcmatweann_CMATWEANN.h )

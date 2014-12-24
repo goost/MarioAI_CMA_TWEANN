@@ -27,6 +27,8 @@
 
 package ch.idsia.scenarios;
 
+import ch.idsia.agents.Agent;
+import ch.idsia.agents.AgentsPool;
 import ch.idsia.benchmark.tasks.BasicTask;
 import ch.idsia.tools.MarioAIOptions;
 
@@ -43,7 +45,7 @@ public static void main(String[] args)
 //        final Environment environment = new MarioEnvironment();
 //        final Agent agent = new ForwardAgent();
 //        final Agent agent = marioAIOptions.getAgent();
-//        final Agent a = AgentsPool.loadAgent("ch.idsia.controllers.agents.controllers.ForwardJumpingAgent");
+        final Agent a = AgentsPool.loadAgent("ch.idsia.controllers.agents.controllers.ForwardJumpingAgent", false);
     final BasicTask basicTask = new BasicTask(marioAIOptions);
 //        for (int i = 0; i < 10; ++i)
 //        {

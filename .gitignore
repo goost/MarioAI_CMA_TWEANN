@@ -4,6 +4,7 @@
 
 ## Directory-based project format:
 .idea/
+.directory
 # if you remove the above rule, at least ignore the following:
 
 # User-specific stuff:
@@ -30,6 +31,10 @@
 *.iws
 
 ## Plugin-specific files:
+
+
+## MarioAIRecordings:
+*.zip
 
 # IntelliJ
 out/
