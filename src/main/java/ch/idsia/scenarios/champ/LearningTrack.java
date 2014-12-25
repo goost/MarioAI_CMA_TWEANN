@@ -168,6 +168,7 @@ public static void main(String[] args)
     LearningAgent learningAgent = (LearningAgent) marioAIOptions.getAgent();
     System.out.println("main.learningAgent = " + learningAgent);
 
+
 //        Level 0
 //    marioAIOptions.setArgs("-lf on -lg on");
     float finalScore = LearningTrack.evaluateSubmission(marioAIOptions, learningAgent);

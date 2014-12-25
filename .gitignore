@@ -33,8 +33,11 @@
 ## Plugin-specific files:
 
 
-## MarioAIRecordings:
+# MarioAIRecordings:
 *.zip
+
+# sbt target dir
+target/
 
 # IntelliJ
 out/
