@@ -1,11 +1,12 @@
-package de.goost.mariocmatweann;
+package de.goost.jcmatweann;
 
 import ch.idsia.agents.Agent;
 import ch.idsia.agents.LearningAgent;
 import ch.idsia.agents.controllers.BasicMarioAIAgent;
 import ch.idsia.benchmark.mario.environments.Environment;
 import ch.idsia.benchmark.tasks.LearningTask;
-import de.goost.jcmatweann.CMATWEANN;
+import de.gost.scario.CMATWEANN;
+
 
 /**
  * Copyright (c) 2014/11, Gleb Ostrowski, glebos at web dot de
@@ -122,15 +123,7 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
 
     @Override
     public void init() {
-        try {
-            population = new CMATWEANN(_numIn, _numOut, _numHid, _sigma, _sigmaMin, _probNode, _probEdge, _bff);
-        } catch (CMATWEANN.GetPointerFailedException e) {
-            System.err.println("Something went wrong with creating the native C++ Class for the CMATWEANN.");
-            System.err.println("This shouldn't happen.");
-            System.err.println("Program will terminate.");
-            e.printStackTrace();
-            System.exit(-1);
-        }
+        population = new CMATWEANN(_numIn, _numOut, _numHid, _sigma, _sigmaMin, _probNode, _probEdge);
         population.produceOffspring();
     }
 
@@ -166,9 +159,9 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
         double[] outputs;
 
         if(_isbestAgent)
-            outputs = population.activateBest(inputs, _numOut);
+            outputs = population.getBestNN().activate(inputs);
         else
-            outputs = population.activate(_curAgentNumber, inputs, _numOut);
+            outputs = population.getNN(_curAgentNumber).activate(inputs);
 
         boolean[] actions = new boolean[Environment.numberOfKeys];
         for (int i = 0; i < outputs.length; i++)

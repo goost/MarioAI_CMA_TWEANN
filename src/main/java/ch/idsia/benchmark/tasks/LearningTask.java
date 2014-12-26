@@ -45,7 +45,7 @@ import java.io.IOException;
 
 public class LearningTask extends BasicTask implements Task
 {
-private static final long EVALUATION_QUOTA = 100000;
+private static final long EVALUATION_QUOTA = 1000; //TODO DIRTY CHANGE!!
 private long currentEvaluation = 0;
 public int uid;
 

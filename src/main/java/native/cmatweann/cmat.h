@@ -35,8 +35,8 @@ class CMATWEANN{
     static float storedDeviate;
     double dist, angle;
     if (!deviateAvailable) {
-      dist=sqrt( -2.0 * log(double(rand()) / double(RAND_MAX)) );
-      angle=2.0 * PI * (double(rand()) / double(RAND_MAX));
+      dist=sqrt( -2.0 * log(double(random()) / double(RAND_MAX)) );
+      angle=2.0 * PI * (double(random()) / double(RAND_MAX));
       storedDeviate=dist*cos(angle);
       deviateAvailable=true;
       return dist * sin(angle) * sigma + mu;
@@ -189,27 +189,27 @@ class CMATWEANN{
       // setup connections from input to hidden-output nodes
       nctr = 0;
       for(int i = 0; i < numIn; i++){
-	for(int j = 0; j < numOut+numHid; j++){
-	  connectionMatrix(i,j) = nctr;
-	  nctr++;
-	}
+	    for(int j = 0; j < numOut+numHid; j++){
+	        connectionMatrix(i,j) = nctr;
+	        nctr++;
+	    }
       }
 
       // setup feed-forward connections
       if(bFF){
-	for(int i = numOut; i < numOut+numHid; i++){
-	  for(int j = 0; j < numOut; j++){
-	    connectionMatrix(i+numIn,j) = nctr;
-	    nctr++;
-	  }
-	}
+	    for(int i = numOut; i < numOut+numHid; i++){
+	        for(int j = 0; j < numOut; j++){
+	            connectionMatrix(i+numIn,j) = nctr;
+	            nctr++;
+	        }
+	    }
       }else{
-	for(int i = 0; i < numOut+numHid; i++){
-	  for(int j = 0; j < numOut+numHid; j++){
-	    connectionMatrix(i+numIn,j) = nctr;
-	    nctr++;
-	  }
-	}
+	    for(int i = 0; i < numOut+numHid; i++){
+	        for(int j = 0; j < numOut+numHid; j++){
+	            connectionMatrix(i+numIn,j) = nctr;
+	            nctr++;
+	        }
+	    }
       }
         
       dim = nctr;
@@ -233,6 +233,7 @@ class CMATWEANN{
     }
     
   inline int getPopSize(){return lambda;}
+
   NN* getNN(int nnID){
     nn->setweight(X.col(nnID));
     nn->reset();
@@ -242,7 +243,8 @@ class CMATWEANN{
   inline void produceOffspring(){
     for(int i = 0; i < lambda; i++){
       // produce mutation base
-      for(int j = 0; j < dim; j++) Z(j,i) = randn(0.,1.);
+      for(int j = 0; j < dim; j++)
+        Z(j,i) = randn(0.,1.);
       // mutation (x += C*z)
       X.col(i) = xbase + sigma*B*D*Z.col(i);
     }
@@ -281,7 +283,7 @@ class CMATWEANN{
     MatrixXd BDt = ((B*D).transpose());
     Zmu = B*D*Zmu*BDt;
     // rank-mu update
-    C = (1-ccov)*C + ccov*((1/mucov)*pc*pc.transpose() + (1-1/mucov)*Zmu);
+    C = (1-ccov)*C + ccov* ((1/mucov)*pc*pc.transpose() + (1-1/mucov)*Zmu);
         
     // update psigma and sigma
     psigma = (1-csigma)*psigma + csigmau*sqrt(mueff)*B*zbase;
@@ -293,13 +295,13 @@ class CMATWEANN{
     double rand_mut = (double)random()/(double)RAND_MAX; //changed random
     if(rand_mut < probNode){
       expandMiC(connectionMatrix,1,1,-1);
-      connectionMatrix(rand()%(numIn+numOut+numHid),numOut+numHid) = nctr; //changed random
+      connectionMatrix(random()%(numIn+numOut+numHid),numOut+numHid) = nctr; //changed random
       nctr++;
       connectionMatrix(numIn+numOut+numHid,(random()%(numOut+numHid))) = nctr; //Changed random
       nctr++;
       updateCMAParameters(2,1);
       nn = new NN(numIn, numOut, numHid, connectionMatrix, xbase, bFF);
-    }else if(rand_mut < (probNode+probEdge) && connectionMatrix.minCoeff() < 0){
+    }else if(rand_mut < (probNode+probEdge) && connectionMatrix() < 0){
       double rand_row, rand_col;
       while(1){
 	rand_row = random()%(numIn+numOut+numHid); //changed random

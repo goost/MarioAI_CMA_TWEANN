@@ -1,4 +1,5 @@
 package de.gost.scario
+import breeze.linalg._
 
 /**
  * Copyright (c) 2014/12, Gleb Ostrowski, glebos at web dot de
@@ -26,6 +27,46 @@ package de.gost.scario
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-class NeuralNetwork {
+class NeuralNetwork( _numIn: Int, _numOut: Int, _numHid : Int = 0, _connectionMatrix: DenseMatrix[Int], var weight : DenseVector[Double], _activation :Double => Double ) {
+  private var _node = DenseVector.zeros[Double](_numOut + _numHid )
+  private var _delay = DenseVector.zeros[Double](_numOut + _numHid )
+
+  def activate(input: Array[Double]) = {
+    //TODO if FeedForward
+    for( nodeCnt <- 0 until _numOut + _numHid; inputCnt <- 0 until _numIn; innerCnt <- 0 until _numOut + _numHid){
+      _node(nodeCnt) = 0
+      if (_connectionMatrix(inputCnt, nodeCnt) != -1 ){ //TODO change nodeCnt and inputCnt? Same for line below
+        _node(nodeCnt) += weight(_connectionMatrix(inputCnt, nodeCnt)) * input(inputCnt)
+      }
+
+      if (_connectionMatrix(innerCnt + _numIn, nodeCnt) != -1 ){
+        _node(nodeCnt) += weight(_connectionMatrix(innerCnt + _numIn, nodeCnt)) * _delay(innerCnt)
+      }
+    }
+
+    for(i <- 0 until _numOut + _numHid){
+      _node(i) = _activation(_node(i))
+      _delay(i) = _node(i)
+    }
+    //TODO is the size always _numOut?
+    val output = Array[Double](_numOut)
+    for(i <- 0 until _numOut) {
+      output(i) = _node(i)
+    }
+    output
+  }
+
+  def reset() {  _delay = DenseVector.zeros[Double](_delay.size ) }
+
+  def copy(numIn: Int = _numIn, numOut: Int = _numOut, numHid : Int = _numHid, connectionMatrix: DenseMatrix[Int] = _connectionMatrix, weight : DenseVector[Double] = weight, activation :Double => Double = _activation) = {
+    val tmp = new NeuralNetwork(numIn,numOut,numHid,connectionMatrix,weight,activation)
+    tmp._node = _node
+    tmp._delay = _delay
+    tmp
+  }
+
+}
+
+object test {
 
 }
