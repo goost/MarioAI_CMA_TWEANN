@@ -34,6 +34,7 @@ class CMATWEANN(_numIn: Int, _numOut:Int, private var _numHid:Int, private var _
   private var _connectionMatrix = DenseMatrix.fill(_numIn+_numOut+_numHid,_numOut+_numHid) {-1}
   private var _nctr = 0
 //S
+  private var first = true
   private var _deviateAvailable = false
   private var _storedDeviate = 0.0
   private var _lambda = 0
@@ -81,6 +82,7 @@ class CMATWEANN(_numIn: Int, _numOut:Int, private var _numHid:Int, private var _
   private var _xvec = DenseVector.zeros[Double](_dim)
   private var _nn = new NeuralNetwork(_numIn, _numOut, _numHid, _connectionMatrix, _xbase, _activation)
 
+  println()
   def getPopSize = _lambda
 
   def getNN(nnID: Int) : NeuralNetwork = {
@@ -129,6 +131,8 @@ class CMATWEANN(_numIn: Int, _numOut:Int, private var _numHid:Int, private var _
     Zmu = _B*_D*Zmu*BDt
     //rank-mu update
     _C = _C * (1-_ccov) + (_pc * _pc.t * (1/_mucov)  + (1-1/_mucov):* Zmu) * _ccov
+    //TODO DEBUG
+    //println(_C)
 
     //update psigma and sigma
     _psigma = _psigma*(1-_csigma) + _csigma * sqrt(_mueff) :* _B * _zbase
@@ -140,9 +144,9 @@ class CMATWEANN(_numIn: Int, _numOut:Int, private var _numHid:Int, private var _
     val rand_mut = Random.nextDouble()
     if(rand_mut < _probNode){
       _connectionMatrix = expandMiC(_connectionMatrix,1,1,-1)
-      _connectionMatrix(Random.nextInt() % (_numIn + _numHid + _numOut),_numIn+_numHid) = _nctr
+      _connectionMatrix(abs(Random.nextInt()) % (_numIn + _numHid + _numOut),_numOut+_numHid) = _nctr
       _nctr += 1
-      _connectionMatrix(_numIn+_numOut+_numHid, Random.nextInt() % (_numOut + _numHid)) = _nctr
+      _connectionMatrix(_numIn+_numOut+_numHid, abs(Random.nextInt()) % (_numOut + _numHid)) = _nctr
       _nctr += 1
       updateCMAParameters(2,1)
       _nn = new NeuralNetwork(_numIn,_numOut,_numHid,_connectionMatrix,_xbase,_activation)
@@ -164,21 +168,20 @@ class CMATWEANN(_numIn: Int, _numOut:Int, private var _numHid:Int, private var _
       updateCMAParameters(1,0)
       _nn = new NeuralNetwork(_numIn,_numOut,_numHid,_connectionMatrix,_xbase,_activation)
     }
+      val svd.SVD(u, s, v) = svd(_C)
+      _B = u
+      _D = diag(s)
+      _D = _D.map {sqrt _ }
 
-    val svd.SVD(u,s,v) = svd(_C)
-    _B = u
-    _D = diag(s)
-    _D = _D.map{sqrt _}
-
-    //lower bound on variance
-    if(_sigma*_D(_dim-1,_dim-1) < _sigmaMin*_sigmaInit){
-      _sigma = _sigmaMin*_sigmaInit/_D(_dim-1,_dim-1)
-    }
+      //lower bound on variance
+      if (_sigma * _D(_dim - 1, _dim - 1) < _sigmaMin * _sigmaInit) {
+        _sigma = _sigmaMin * _sigmaInit / _D(_dim - 1, _dim - 1)
+      }
   }
 
   def getBestNN = {
     rankNeuralNetworks()
-    getNN(_rank(0))
+    getNN(_rank(11))
   }
 
   private def rankNeuralNetworks(): Unit = {
@@ -186,25 +189,30 @@ class CMATWEANN(_numIn: Int, _numOut:Int, private var _numHid:Int, private var _
     for(i <- 0 until _lambda) {
       rankScore(i) = (_score(i), i)
     }
-
     val rankScoreSorted = rankScore.sortBy(_._1)
+    println("Sorted Rank (last should be best):")
+    rankScoreSorted.foreach(tupel => println(s"Tupel: $tupel"))
     for(i <- 0 until _lambda){ //TODO the sorting could be wrong
       _rank(i) = rankScoreSorted(rankScoreSorted.length -1-i)._2
     }
   }
 
+
+
   private def initializeCMAParameters() : Unit = {
-    _lambda = scala.math.max( 4 + (3*log1p(_dim)).toInt, 5 )
+    _lambda = scala.math.max( 4 + (3*log(_dim)).toInt, 5 )
     _mu = _lambda/2
     _cc = 4.0 /(4.0 + _dim.toDouble)
     _ccov = 2.0 / pow(_dim + sqrt(2.0 ), 2 )
 
     _wmu = DenseVector.zeros[Double](_mu)
     for(i <- 0 until _mu){
-      _wmu(i) = log1p((_lambda+1)/2) + log1p(i+1)
+      _wmu(i) = log((_lambda+1)/2) + log(i+1)
     }
     _wmu = _wmu :/ breeze.linalg.sum(_wmu)
     //_wmu.map{x => x / breeze.linalg.sum(_wmu)}
+    //println("wmu") //TODO DEBUG
+    //println(_wmu)
     _cw = breeze.linalg.sum(_wmu) / norm(_wmu)
 
     _mueff = 1 / pow( norm(_wmu),2)
@@ -216,6 +224,11 @@ class CMATWEANN(_numIn: Int, _numOut:Int, private var _numHid:Int, private var _
     _score = DenseVector.zeros[Double](_lambda)
     _rank = DenseVector.zeros[Int](_lambda)
 
+    if(first) {
+      _X = DenseMatrix.zeros[Double](_dim, _lambda)
+      _Z = DenseMatrix.zeros[Double](_dim, _lambda)
+      first = false
+    }
   }
 
   private def updateCMAParameters(ddiff: Int, ndiff: Int ) : Unit = {
@@ -262,7 +275,7 @@ class CMATWEANN(_numIn: Int, _numOut:Int, private var _numHid:Int, private var _
 
   private def randn(mu: Double, sigma: Double) :Double = {
     if(!_deviateAvailable) {
-      val dist = sqrt (-2.0 * log1p(Random.nextDouble()))
+      val dist = sqrt (-2.0 * log(Random.nextDouble()))
       val angle = 2.0 * Pi * Random.nextDouble()
       _storedDeviate = dist * cos(angle)
       _deviateAvailable = true

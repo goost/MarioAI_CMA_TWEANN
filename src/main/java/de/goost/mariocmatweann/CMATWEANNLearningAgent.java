@@ -1,4 +1,4 @@
-package de.goost.jcmatweann;
+package de.goost.mariocmatweann;
 
 import ch.idsia.agents.Agent;
 import ch.idsia.agents.LearningAgent;
@@ -72,9 +72,9 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
 
     public CMATWEANNLearningAgent () {
         //Default Params taken from test.cpp from the CMA-TWEANN Source
-        //numIN and numOut and so changed accordingly, obviously
+        //numIN and numOut and so changed accordingly, obviously, now messing with sigma
         //    nIn   nOut   nHid   sigma     sigmaMin    probNode  probEdge  bff
-        this(15      ,5   ,8     ,0.5       ,0.5      ,0.01      ,0.1      ,false);
+        this(15      ,5   ,8     ,20.0       ,0.5      ,0.01      ,0.1      ,false);
     }
 
     @Override
@@ -82,16 +82,17 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
         while (_curEval < _evaluationQuota){
             for (int cnt = 0; cnt < population.getPopSize(); cnt++) {
                 _curAgentNumber = cnt;
-                population.setScore(cnt,-_learningTask.evaluate(this));//TODO negative score?
+                population.setScore(cnt,_learningTask.evaluate(this));//TODO negative score?
                 if(_curEval++ > _evaluationQuota) {
                     break;
                 }
                 //TODO DEBUG
-                System.out.println("CurVal: "+ _curEval);
+                if(_curEval % 1000 == 0)
+                    System.out.println("CurVal: "+ _curEval);
             }
             population.proceedGen();
             //TODO DEBUG
-            System.err.println("NextGenerationPopSize: " + population.getPopSize());
+            //System.err.println("NextGenerationPopSize: " + population.getPopSize());
         }
     }
 

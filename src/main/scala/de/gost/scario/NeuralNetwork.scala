@@ -49,7 +49,7 @@ class NeuralNetwork( _numIn: Int, _numOut: Int, _numHid : Int = 0, _connectionMa
       _delay(i) = _node(i)
     }
     //TODO is the size always _numOut?
-    val output = Array[Double](_numOut)
+    val output = new Array[Double](_numOut)
     for(i <- 0 until _numOut) {
       output(i) = _node(i)
     }
