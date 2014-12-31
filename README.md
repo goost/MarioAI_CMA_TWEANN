@@ -19,6 +19,8 @@ CMA-TWEANN (Jul. 16, 2012) + Eigen lib (ver. 3.0.4)
 
 The wrapper C++ CMA-TWEANN code
 
+(The Development Branch is currently focusing on getting rid of the wrapper)
+
 The agent used as controller
 
 Each source is under its own license, if any.
