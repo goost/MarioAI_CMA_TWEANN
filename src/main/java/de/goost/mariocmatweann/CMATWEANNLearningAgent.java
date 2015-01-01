@@ -74,12 +74,13 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
         //Default Params taken from test.cpp from the CMA-TWEANN Source
         //numIN and numOut and so changed accordingly, obviously, now messing with sigma
         //    nIn   nOut   nHid   sigma     sigmaMin    probNode  probEdge  bff
-        this(15      ,5   ,8     ,20.0       ,0.5      ,0.01      ,0.1      ,false);
+        this(15      ,5   ,8     ,.5       ,0.5      ,0.01      ,0.1      ,false);
     }
 
     @Override
     public void learn() {
         while (_curEval < _evaluationQuota){
+            population.produceOffspring();
             for (int cnt = 0; cnt < population.getPopSize(); cnt++) {
                 _curAgentNumber = cnt;
                 population.setScore(cnt,_learningTask.evaluate(this));//TODO negative score?
@@ -125,7 +126,6 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
     @Override
     public void init() {
         population = new CMATWEANN(_numIn, _numOut, _numHid, _sigma, _sigmaMin, _probNode, _probEdge);
-        population.produceOffspring();
     }
 
     @Override

@@ -82,7 +82,6 @@ class CMATWEANN(_numIn: Int, _numOut:Int, private var _numHid:Int, private var _
   private var _xvec = DenseVector.zeros[Double](_dim)
   private var _nn = new NeuralNetwork(_numIn, _numOut, _numHid, _connectionMatrix, _xbase, _activation)
 
-  println()
   def getPopSize = _lambda
 
   def getNN(nnID: Int) : NeuralNetwork = {
@@ -100,7 +99,7 @@ class CMATWEANN(_numIn: Int, _numOut:Int, private var _numHid:Int, private var _
       for(j <- 0 until _dim) {
         _Z(j, i) = randn(0, 1)
       }
-      _X(::,i) := _xbase +  _sigma :* _B * _D *_Z(::,i)
+      _X(::,i) := _xbase +  (_B * _sigma ) * _D *_Z(::,i)
     }
   }
 
@@ -119,23 +118,24 @@ class CMATWEANN(_numIn: Int, _numOut:Int, private var _numHid:Int, private var _
     }
 
     //update pc and c
-    _pc = _pc * (1-_cc) + _ccu *sqrt(_mueff) :* _B * _D * _zbase
+    _pc = _pc * (1-_cc) + (_B * ( _ccu * sqrt(_mueff) ) ) * _D * _zbase
 
     //rank-mu update
     var Zmu = DenseMatrix.zeros[Double](_dim, _dim)
     for(i <- 0 until _mu){
-      Zmu += _Z(::,_rank(i)) * (_Z(::, _rank(i)).t)*_wmu(i)
+      Zmu += _Z(::,_rank(i)) * _Z(::, _rank(i)).t *_wmu(i)
     }
 
     val BDt = (_B * _D).t
     Zmu = _B*_D*Zmu*BDt
     //rank-mu update
-    _C = _C * (1-_ccov) + (_pc * _pc.t * (1/_mucov)  + (1-1/_mucov):* Zmu) * _ccov
+    //_C = _C * (1-_ccov) + (_pc * _pc.t * (1/_mucov)  + (1-1/_mucov):* Zmu) * _ccov
+    _C = _C * (1-_ccov) + ( (_pc* (1 / _mucov )) * _pc.t  +  Zmu * (1-1/_mucov)) * _ccov
     //TODO DEBUG
     //println(_C)
 
     //update psigma and sigma
-    _psigma = _psigma*(1-_csigma) + _csigma * sqrt(_mueff) :* _B * _zbase
+    _psigma = _psigma*(1-_csigma) + (_B * _csigma * sqrt(_mueff) ) * _zbase
     _sigma = _sigma * exp(_csigma * (norm(_psigma)-_chin)/(_dsigma*_chin))
 
     if(bestscore < _score(_rank(0))) {
@@ -181,7 +181,7 @@ class CMATWEANN(_numIn: Int, _numOut:Int, private var _numHid:Int, private var _
 
   def getBestNN = {
     rankNeuralNetworks()
-    getNN(_rank(11))
+    getNN(_rank(0))
   }
 
   private def rankNeuralNetworks(): Unit = {
@@ -217,16 +217,18 @@ class CMATWEANN(_numIn: Int, _numOut:Int, private var _numHid:Int, private var _
 
     _mueff = 1 / pow( norm(_wmu),2)
     _mucov = _mueff
-    _csigma = (_mueff + 2) / (_dim + _mueff + 2)
+    _csigma = (_mueff + 2) / (_dim + _mueff + 3)
     _dsigma = 1+ 2 * scala.math.max (0.0, sqrt( (_mueff -1.0) / (_dim + 1.0))-1.0) + _csigma
+    _ccu = sqrt(_cc*(2-_cc))
+    _csigmau = sqrt(_csigma*(2-_csigma))
     _chin = _dim * 0.5 * (1-1/(4*_dim)+1/(21*_dim*_dim))
 
     _score = DenseVector.zeros[Double](_lambda)
     _rank = DenseVector.zeros[Int](_lambda)
 
     if(first) {
-      _X = DenseMatrix.zeros[Double](_dim, _lambda)
-      _Z = DenseMatrix.zeros[Double](_dim, _lambda)
+     // _X = DenseMatrix.zeros[Double](_dim, _lambda)
+     // _Z = DenseMatrix.zeros[Double](_dim, _lambda)
       first = false
     }
   }
@@ -238,7 +240,11 @@ class CMATWEANN(_numIn: Int, _numOut:Int, private var _numHid:Int, private var _
     _pc = expandVZ(_pc, ddiff)
     _psigma = expandVZ(_psigma,ddiff)
     _C = expandM(_C, ddiff, ddiff)
+    println("C before adding old values to corner")
+    println(_C) //TODO DEBUG
     _C(_C.rows - ddiff to _C.rows -1, _C.cols -ddiff to _C.cols -1) := diag(DenseVector.fill[Double](ddiff){pow(_sigmaInit / _sigma, 2)})
+    println("C after adding values")
+    println(_C)
     _xbase = expandVZ(_xbase,ddiff)
     _zbase = expandVZ(_zbase,ddiff)
     _X= expandM(_X,ddiff,_lambda - _X.cols)
