@@ -79,6 +79,7 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
     @Override
     public void learn() {
         while (_curEval < _evaluationQuota){
+            population.produceOffspring();
             for (int cnt = 0; cnt < population.getPopSize(); cnt++) {
                 _curAgentNumber = cnt;
                 population.setScore(cnt,-_learningTask.evaluate(this));//TODO negative score?
@@ -86,7 +87,8 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
                     break;
                 }
                 //TODO DEBUG
-                System.out.println("CurVal: "+ _curEval);
+                if(_curEval % 1000 == 0)
+                    System.out.println("CurVal: "+ _curEval);
             }
             population.proceedGen();
             //TODO DEBUG
