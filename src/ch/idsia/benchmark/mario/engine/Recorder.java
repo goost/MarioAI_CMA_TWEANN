@@ -59,7 +59,6 @@ public Recorder(String fileName) throws FileNotFoundException
 {
     if (!fileName.endsWith(".zip"))
         fileName += ".zip";
-
     zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(fileName)));
     canRecord = true;
 }

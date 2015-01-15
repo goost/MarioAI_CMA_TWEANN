@@ -55,6 +55,11 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
     private double _sigmaMin;
     private double _sigma;
 
+    //benri (convenient) for testing, but not pretty ofc
+    final static private boolean _merged = false;
+    final static private boolean _realValue = true;
+    final static private boolean _full = false;
+
 
     public CMATWEANNLearningAgent (int numIn, int numOut, int numHid, double sigma, double sigmaMin, double probNode, double probEdge, boolean bff){
         super("CMATWEANNLearningAgent");
@@ -73,7 +78,8 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
         //Default Params taken from test.cpp from the CMA-TWEANN Source
         //numIN and numOut and so changed accordingly, obviously
         //    nIn   nOut   nHid   sigma     sigmaMin    probNode  probEdge  bff
-        this(15      ,5   ,8     ,0.5       ,0.5      ,0.01      ,0.1      ,false);
+        this(_full ?  _merged ? 30 : 55 : 15     ,5   ,0     ,.5       ,0.5      ,0.01      ,0.1      ,false);
+        //not pretty, but gets the job done for quick testing
     }
 
     @Override
@@ -82,17 +88,16 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
             population.produceOffspring();
             for (int cnt = 0; cnt < population.getPopSize(); cnt++) {
                 _curAgentNumber = cnt;
-                population.setScore(cnt,-_learningTask.evaluate(this));//TODO negative score?
+                //Negative score to get the sorting right, order is ascending
+                population.setScore(cnt,-_learningTask.evaluate(this));
                 if(_curEval++ > _evaluationQuota) {
                     break;
                 }
                 //TODO DEBUG
-                if(_curEval % 1000 == 0)
+                if(_curEval % 100 == 0)
                     System.out.println("CurVal: "+ _curEval);
             }
             population.proceedGen();
-            //TODO DEBUG
-            System.err.println("NextGenerationPopSize: " + population.getPopSize());
         }
     }
 
@@ -138,21 +143,45 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
 
     @Override
     public boolean[] getAction() {
-        //TODO various implementattion based on best cells
-        //for now only top5Enemy and top5Level, taken from the paper
-        //first change: only one Grid
         double[] inputs     = new double[_numIn];
-        int[] top5Enemies   = {14,3,5,9,2};
-        int[] top5Level     = {6,1,0,5,4};
 
-        int curInput = 0;
-        for (int cnt = 0; cnt < 5; cnt++) {
-            //TODO use point array or something, instead of getRealCell method -> too long and ugly
-            inputs[curInput++] = getRealCell(top5Enemies[cnt], enemies);
+        //quick and dirty, I am aware of the redundancy
+        if(_full){
+            if(_merged){
+                for (int cnt = 0; cnt < 25; cnt++) {
+                    inputs[cnt] = getRealCell(cnt,mergedObservation);
+                }
+            }
+            else {
+                int curInput = 0;
+                for (int cnt = 0; cnt < 25; cnt++) {
+                    inputs[curInput++] = getRealCell(cnt, enemies);
+                }
+                for (int cnt = 0; cnt < 25; cnt++) {
+                    inputs[curInput++] = getRealCell(cnt, levelScene);
+                }
+            }
         }
-        for (int cnt = 0; cnt < 5; cnt++) {
-            //TODO use point array or something, instead of getRealCell method -> too long and ugly
-            inputs[curInput++] = getRealCell(top5Level[cnt], levelScene);
+
+        else if(!_merged) {
+            int[] top5Enemies = {14, 3, 5, 9, 2};
+            int[] top5Level = {6, 1, 0, 5, 4};
+
+            int curInput = 0;
+            for (int cnt = 0; cnt < 5; cnt++) {
+                //TODO use point array or something, instead of getRealCell method -> too long and ugly
+                inputs[curInput++] = getRealCell(top5Enemies[cnt], enemies);
+            }
+            for (int cnt = 0; cnt < 5; cnt++) {
+                //TODO use point array or something, instead of getRealCell method -> too long and ugly
+                inputs[curInput++] = getRealCell(top5Level[cnt], levelScene);
+            }
+
+        } else {
+            int[] top10Merged = {0,1,2,3,4,5,6,9,11,14};
+            for (int cnt = 0; cnt < 10; cnt++) {
+                inputs[cnt] = getRealCell(top10Merged[cnt],mergedObservation);
+            }
         }
 
         if(marioMode==2)//fire Status
@@ -287,7 +316,7 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
                 break;
         }
         //TODO use real values?
-        return (sceneGrid[realX][realY] != 0) ? 1 : 0;
+        return (sceneGrid[realX][realY] != 0) ?  _realValue ? sceneGrid[realX][realY] : 1 : 0;
     }
 
     private double isJumpHole(byte[][] levelScene,int x) {
