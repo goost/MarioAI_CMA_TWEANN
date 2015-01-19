@@ -106,6 +106,7 @@ public void startReplay()
     {
         agent = new ReplayAgent("Replay agent");
         MarioAIOptions options = new MarioAIOptions();
+        options.setScale2X(true);
         while (replayer.openNextReplayFile())
         {
             replayer.openFile("options");

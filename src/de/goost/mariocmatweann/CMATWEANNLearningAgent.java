@@ -6,6 +6,9 @@ import ch.idsia.agents.controllers.BasicMarioAIAgent;
 import ch.idsia.benchmark.mario.environments.Environment;
 import ch.idsia.benchmark.tasks.LearningTask;
 import de.goost.jcmatweann.CMATWEANN;
+import ch.idsia.benchmark.mario.engine.GeneralizerEnemies;
+import ch.idsia.benchmark.mario.engine.GeneralizerLevelScene;
+import ch.idsia.benchmark.mario.engine.sprites.Sprite;
 
 /**
  * Copyright (c) 2014/11, Gleb Ostrowski, glebos at web dot de
@@ -56,9 +59,11 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
     private double _sigma;
 
     //benri (convenient) for testing, but not pretty ofc
-    final static private boolean _merged = false;
-    final static private boolean _realValue = true;
+    final static private boolean _merged = true;
+    final private boolean _realValue = true;
     final static private boolean _full = false;
+    final private int zLevelScene = 2;
+    final private int zLevelEnemies = 1;
 
 
     public CMATWEANNLearningAgent (int numIn, int numOut, int numHid, double sigma, double sigmaMin, double probNode, double probEdge, boolean bff){
@@ -80,6 +85,14 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
         //    nIn   nOut   nHid   sigma     sigmaMin    probNode  probEdge  bff
         this(_full ?  _merged ? 30 : 55 : 15     ,5   ,0     ,.5       ,0.5      ,0.01      ,0.1      ,false);
         //not pretty, but gets the job done for quick testing
+    }
+
+    @Override
+    public void integrateObservation(Environment environment) {
+        super.integrateObservation(environment);
+        levelScene = environment.getLevelSceneObservationZ(zLevelScene);
+        enemies = environment.getEnemiesObservationZ(zLevelEnemies);
+        mergedObservation = environment.getMergedObservationZZ(zLevelScene, zLevelEnemies);
     }
 
     @Override
@@ -201,12 +214,12 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
         else
             outputs = population.activate(_curAgentNumber, inputs, _numOut);
 
-        boolean[] actions = new boolean[Environment.numberOfKeys];
+        //boolean[] actions = new boolean[Environment.numberOfKeys];
         for (int i = 0; i < outputs.length; i++)
         {
-            actions[i] = outputs[i] > 0;
+            action[i] = outputs[i] > 0;
         }
-        return actions;
+        return action;
     }
 
     private double getRealCell(int myCellNumber, byte[][] sceneGrid) {
@@ -316,7 +329,40 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
                 break;
         }
         //TODO use real values?
-        return (sceneGrid[realX][realY] != 0) ?  _realValue ? sceneGrid[realX][realY] : 1 : 0;
+        return interpretScene(sceneGrid[realX][realY]);
+    }
+
+    /**
+     *method for interpreting the levelScene
+     *  Ways:
+     *  1) simply return 0 (nothing there), 1 (something there)
+     *  2) return the real Values in the array (which are determined by the zLevel)
+     *  3) return 0 (nothing there), 1 (pickable item like coins, mushrooms,...), 2 (enemy), 3 (walls, non pass trough), 4 (spiky enemies)
+    */
+    private double interpretScene(byte gridContent) {
+        switch(gridContent){
+            case 0: //nothing
+            case GeneralizerLevelScene.PRINCESS: //we do not care about her
+            case Sprite.KIND_PRINCESS:
+            case Sprite.KIND_FIREBALL: //do not care
+                return 0;
+            case GeneralizerLevelScene.COIN_ANIM: //and  case Sprite.KIND_MUSHROOM, both 2
+            case Sprite.KIND_GREEN_MUSHROOM:
+            case Sprite.KIND_FIRE_FLOWER:
+                return 1;
+            case Sprite.KIND_GOOMBA:
+            case Sprite.KIND_SHELL:
+                return 2;
+            case Sprite.KIND_SPIKY:
+                return 4;
+            case GeneralizerLevelScene.BORDER_CANNOT_PASS_THROUGH:
+            case 1: //something, not passable
+                return 3;
+            default:
+                return 0;
+        }
+
+        //return (gridContent != 0) ?  _realValue ? gridContent : 1 : 0;
     }
 
     private double isJumpHole(byte[][] levelScene,int x) {

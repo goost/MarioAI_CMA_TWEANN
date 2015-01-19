@@ -27,7 +27,9 @@
 
 package ch.idsia.scenarios;
 
+import ch.idsia.benchmark.mario.engine.GlobalOptions;
 import ch.idsia.benchmark.tasks.ReplayTask;
+import ch.idsia.tools.MarioAIOptions;
 
 /**
  * Created by IntelliJ IDEA.
@@ -50,7 +52,8 @@ Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: 0
      */
 //    final MarioAIOptions cmdLineOptions = new MarioAIOptions(args);
     final ReplayTask replayTask = new ReplayTask();
-    replayTask.reset(args[0]);
+    //replayTask.reset(args[0]);
+    replayTask.reset("CMATWEANNLearningAgent_PSO_win");
     replayTask.startReplay();
     // TODO: output evaluationInfo as in BasicTask
     System.out.println(replayTask.getEnvironment().getEvaluationInfoAsString());

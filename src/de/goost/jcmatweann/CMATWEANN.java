@@ -46,13 +46,6 @@ public class CMATWEANN {
 
     public native int getPopSize();
 
-    /*//method calls getNNNative and wraps the received handler in a NeuralNet-Object
-    public NeuralNet getNN(int nnID) throws GetPointerFailedException {
-        long pt = getNNNative(nnID);
-        if(pt == 0) throw new GetPointerFailedException("GetNN: Received Handler is ZERO!");
-        return new NeuralNet(pt);
-    }*/
-
     public native void setScore(int nnID, double tmpScore);
 
     public native void produceOffspring();
@@ -74,7 +67,7 @@ public class CMATWEANN {
     public native double[] activateBest(double[] inputs, int outputSize);
 
     /*GETTER AND SETTER BELOW*/
-    public void setPt(long _pt) {
+    private void setPt(long _pt) {
         this._pt = _pt;
     }
 
@@ -82,6 +75,7 @@ public class CMATWEANN {
         return _pt;
     }
 
+    //load native lib
     static {
         System.loadLibrary("libjcmatweann");
     }

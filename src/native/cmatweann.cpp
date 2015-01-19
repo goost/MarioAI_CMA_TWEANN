@@ -65,12 +65,6 @@ void Java_de_goost_jcmatweann_CMATWEANN_dispose
     delete cmannPt;
   }
 
-jlong Java_de_goost_jcmatweann_CMATWEANN_getNNNative
-  (JNIEnv* env, jobject obj, jint nnID) {
-    CMATWEANN* cmannPt = getPointer<CMATWEANN>(env, obj);
-    return reinterpret_cast<jlong> (cmannPt->getNN(nnID) );
-  }
-
 jlong Java_de_goost_jcmatweann_CMATWEANN_generateCMATWEANN
   (JNIEnv* env, jobject obj, jint numIn, jint numOut, jint numHid,
     jdouble sigma, jdouble sigmaMin, jdouble probNode, jdouble probEdge, jboolean bff) {

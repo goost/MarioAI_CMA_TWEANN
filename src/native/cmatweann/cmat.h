@@ -185,7 +185,7 @@ class CMATWEANN{
     probEdge(probEdge),
     bFF(bFF)
     {
-      srand(time(0));
+      srand(time(0)); //added for rand
       connectionMatrix = MatrixXi::Constant(numIn+numOut+numHid,numOut+numHid,-1);
 
       // setup connections from input to hidden-output nodes
@@ -333,8 +333,6 @@ class CMATWEANN{
       rankScore[i] = make_pair(score[i],i);
     }
     sort(rankScore.begin(), rankScore.end(), scoreComp);
-    std::cout << "Best Score: " <<rankScore[0].first <<" FromNNNummer: "<<  rankScore[0].second << std::endl;
-    std::cout << "Worst Score: " <<rankScore[lambda-1].first <<" FromNNNummer: "<<  rankScore[lambda-1].second << std::endl;
     return getNN(rankScore[0].second);
   }
 
