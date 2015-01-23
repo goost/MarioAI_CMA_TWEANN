@@ -1,6 +1,10 @@
 MarioAI_CMA_TWEANN
 ==================
 
+**THIS BRANCH IS DROPPED.**
+
+The Scala code was slower and not bug free, the wrapper works just fin.
+
 A Learning Agent for Mario AI Benchmark using CMA-TWEANN.
 
 For more information regarding Mario AI see:
