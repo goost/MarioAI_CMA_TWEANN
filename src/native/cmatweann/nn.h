@@ -29,6 +29,7 @@ class NN{
     
     inline double sigmoid(double x){
         return x/(1+abs(x));
+        //1/(1+e^(-1*x) only positive y
     }
     
 public:

@@ -4,7 +4,7 @@
 //  Created by Hirotaka Moriguchi
 //
 
-/* GLeb Ostrowski:
+/* Gleb Ostrowski:
 *  Changed all random() calls on marked lines
 *  to rand() calls, otherwise it would not compile
 *  applies only to windows, current status APPLIED
@@ -334,6 +334,15 @@ class CMATWEANN{
     }
     sort(rankScore.begin(), rankScore.end(), scoreComp);
     return getNN(rankScore[0].second);
+  }
+
+  //added by Gleb Ostrowski for printing out net infos
+  void printNetInfos(){
+    IOFormat HeavyFmt(FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
+    string sep = "\n----------------------------------------\n";
+    cout << "Connection Matrix" << sep << connectionMatrix.format(HeavyFmt) << sep;
+    cout << "Weight Matrix" << sep << X.format(HeavyFmt) << sep;
+    cout << "Number of Hidden Nodes = " << numHid << sep << sep;
   }
 
 };

@@ -110,3 +110,8 @@ jdoubleArray Java_de_goost_jcmatweann_CMATWEANN_activateBest
          NN* nnPt = getPointer<CMATWEANN>(env, obj)->getBestNN();
          return activateHelper(env,nnPt, inputsArray, outputSize);
         }
+
+void Java_de_goost_jcmatweann_CMATWEANN_printNetInfos
+          (JNIEnv* env, jobject obj) {
+          getPointer<CMATWEANN>(env, obj)->printNetInfos();
+          }

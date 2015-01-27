@@ -37,6 +37,21 @@ public class CMATWEANN {
 
     private long _pt; //pointer (handler), RAM address of the native object
 
+    /**
+     * Constructs the CMA-TWEANN in native Code and returns the pointer
+     * A high sigma in the beginning and a low in the end is recommended to avoid
+     * local optima
+     *
+     * @param numIn number of input neurons
+     * @param numOut number of output neurons
+     * @param numHid initial number of hidden neurons
+     * @param sigma "learning speed", the higher, the more curious is the net
+     * @param sigmaMin sigma is changed during the course, this is the minimum
+     * @param probNode the probability for a new hidden node
+     * @param probEdge the probability for a new conenction
+     * @param bFF true, net will be feed-forward, false, net will be recurrent
+     * @throws GetPointerFailedException
+     */
     public CMATWEANN(int numIn, int numOut, int numHid, double sigma, double sigmaMin, double probNode, double probEdge, boolean bFF) throws GetPointerFailedException {
         long pt = generateCMATWEANN(numIn, numOut, numHid, sigma, sigmaMin, probNode, probEdge, bFF);
         if(pt == 0) throw new GetPointerFailedException("Contructor: Received Handler is ZERO!");
@@ -46,25 +61,83 @@ public class CMATWEANN {
 
     public native int getPopSize();
 
+    /**
+     * Sets the score of the net with the nnID
+     * Beware, that the nets are sorted in ascending order.
+     * For the best net (= highest score) to be first in order,
+     * insert the score as a negative.
+     *
+     * @param nnID the ID of the net to set the score for
+     * @param tmpScore the score
+     */
     public native void setScore(int nnID, double tmpScore);
 
+    /**
+     * Produces the Offspring, based on the best nets in the population.
+     * Call before any new evalution of the population
+     */
     public native void produceOffspring();
 
+    /**
+     * Proceed the Generation, changing all variables
+     * Call after every net is evaluated once.
+     */
     public native void proceedGen();
 
-    //Call these if the CMA-TWEANN is no more needed
+    /**Call these if the CMA-TWEANN is no more needed
+     *
+     */
     public native void dispose();
 
-    //Gets the NN from native Code and returns the pointer
+    /**
+     * Gets the NN from native Code and returns the pointer
+     *
+     * @param nnID
+     * @return
+     */
     private native long getNNNative(int nnID);
 
-    //Constructs the CMA-TWEANN in native Code and returns the pointer
+    /**
+     * Constructs the CMA-TWEANN in native Code and returns the pointer
+     * A high sigma in the beginning and a low in the end is recommended to avoid
+     * local optima
+     *
+     * @param numIn number of input neurons
+     * @param numOut number of output neurons
+     * @param numHid initial number of hidden neurons
+     * @param sigma "learning speed", the higher, the more curious is the net
+     * @param sigmaMin sigma is changed during the course, this is the minimum
+     * @param probNode the probability for a new hidden node
+     * @param probEdge the probability for a new conenction
+     * @param bFF true, net will be feed-forward, false, net will be recurrent
+     * @return the handler
+     */
     private native long generateCMATWEANN(int numIn, int numOut, int numHid, double sigma, double sigmaMin, double probNode, double probEdge, boolean bFF);
 
+    /**
+     * activate the net with nnID and inputs
+     * @param nnID the net to activate
+     * @param inputs array containing the inputs. client must check array size = numIn
+     * @param outputSize the size of the output array (= numOut). needed for wrapping reasons
+     * @return a double array containing the output
+     */
     public native double[] activate(int nnID, double[] inputs, int outputSize);
 
-    //TODO RENAME AND RECOMPILE LIB
+    /**
+     * activates the best net sofar
+     * @param inputs array containing the inputs. client must check array size = numIn
+     * @param outputSize the size of the output array (= numOut). needed for wrapping reasons
+     * @return a double array containing the output
+     */
     public native double[] activateBest(double[] inputs, int outputSize);
+
+    /**
+     * prints the connectionMatrix
+     * -1 = no connection, number = connection,
+     * row = neuron with its connections (order=> first input, then output, then all hidden)
+     * prints the weight matrix, each column is a net of the population
+     */
+    public native void printNetInfos();
 
     /*GETTER AND SETTER BELOW*/
     private void setPt(long _pt) {

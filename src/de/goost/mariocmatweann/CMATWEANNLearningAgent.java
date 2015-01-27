@@ -6,7 +6,6 @@ import ch.idsia.agents.controllers.BasicMarioAIAgent;
 import ch.idsia.benchmark.mario.environments.Environment;
 import ch.idsia.benchmark.tasks.LearningTask;
 import de.goost.jcmatweann.CMATWEANN;
-import ch.idsia.benchmark.mario.engine.GeneralizerEnemies;
 import ch.idsia.benchmark.mario.engine.GeneralizerLevelScene;
 import ch.idsia.benchmark.mario.engine.sprites.Sprite;
 
@@ -39,7 +38,7 @@ import ch.idsia.benchmark.mario.engine.sprites.Sprite;
 public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements LearningAgent {
 
     private LearningTask _learningTask;
-    private CMATWEANN population;
+    private CMATWEANN _population;
 
     private long _evaluationQuota;
     private long _curEval;
@@ -59,11 +58,18 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
     private double _sigma;
 
     //benri (convenient) for testing, but not pretty ofc
-    final static private boolean _merged = true;
+    final static private boolean _merged = false;
+    final static private boolean _LeftRightCombined = true;
     final private boolean _realValue = true;
-    final static private boolean _full = false;
     final private int zLevelScene = 2;
     final private int zLevelEnemies = 1;
+    /*best settings after some testing (so far):
+        zLevelSccene = 2 (is there something or not?)
+        zLevelEnemies = 1 (not every enemy, but general distinguishable)
+        not merged, realValues
+        If one would use merged values with this settings, the zLevels would collide,
+        Meaning, a 1 could mean many things.
+    */
 
 
     public CMATWEANNLearningAgent (int numIn, int numOut, int numHid, double sigma, double sigmaMin, double probNode, double probEdge, boolean bff){
@@ -83,7 +89,7 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
         //Default Params taken from test.cpp from the CMA-TWEANN Source
         //numIN and numOut and so changed accordingly, obviously
         //    nIn   nOut   nHid   sigma     sigmaMin    probNode  probEdge  bff
-        this(_full ?  _merged ? 30 : 55 : 15     ,5   ,0     ,.5       ,0.5      ,0.01      ,0.1      ,false);
+        this(15     ,_LeftRightCombined ? 4 : 5   ,0     ,25.5       ,0.5      ,0.01      ,0.1      ,false);
         //not pretty, but gets the job done for quick testing
     }
 
@@ -95,14 +101,20 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
         mergedObservation = environment.getMergedObservationZZ(zLevelScene, zLevelEnemies);
     }
 
+    /**
+     * Train the network.
+     * First, the offSpring is produced, then every net is evaluated and the score is set
+     * Finally, the generation is being judged.
+     * Then restart, till the limit is reached.
+     */
     @Override
     public void learn() {
         while (_curEval < _evaluationQuota){
-            population.produceOffspring();
-            for (int cnt = 0; cnt < population.getPopSize(); cnt++) {
+            _population.produceOffspring();
+            for (int cnt = 0; cnt < _population.getPopSize(); cnt++) {
                 _curAgentNumber = cnt;
                 //Negative score to get the sorting right, order is ascending
-                population.setScore(cnt,-_learningTask.evaluate(this));
+                _population.setScore(cnt,-_learningTask.evaluate(this));
                 if(_curEval++ > _evaluationQuota) {
                     break;
                 }
@@ -110,7 +122,7 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
                 if(_curEval % 100 == 0)
                     System.out.println("CurVal: "+ _curEval);
             }
-            population.proceedGen();
+            _population.proceedGen();
         }
     }
 
@@ -137,13 +149,17 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
     @Override
     public Agent getBestAgent() {
         setIsBestAgent(true);
+        //TODO DEBUG
+        System.err.printf("Popsize = %d\n", _population.getPopSize());
+        _population.printNetInfos();
+
         return this;
     }
 
     @Override
     public void init() {
         try {
-            population = new CMATWEANN(_numIn, _numOut, _numHid, _sigma, _sigmaMin, _probNode, _probEdge, _bff);
+            _population = new CMATWEANN(_numIn, _numOut, _numHid, _sigma, _sigmaMin, _probNode, _probEdge, _bff);
         } catch (CMATWEANN.GetPointerFailedException e) {
             System.err.println("Something went wrong with creating the native C++ Class for the CMATWEANN.");
             System.err.println("This shouldn't happen.");
@@ -151,7 +167,7 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
             e.printStackTrace();
             System.exit(-1);
         }
-        population.produceOffspring();
+        _population.produceOffspring();
     }
 
     @Override
@@ -159,24 +175,7 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
         double[] inputs     = new double[_numIn];
 
         //quick and dirty, I am aware of the redundancy
-        if(_full){
-            if(_merged){
-                for (int cnt = 0; cnt < 25; cnt++) {
-                    inputs[cnt] = getRealCell(cnt,mergedObservation);
-                }
-            }
-            else {
-                int curInput = 0;
-                for (int cnt = 0; cnt < 25; cnt++) {
-                    inputs[curInput++] = getRealCell(cnt, enemies);
-                }
-                for (int cnt = 0; cnt < 25; cnt++) {
-                    inputs[curInput++] = getRealCell(cnt, levelScene);
-                }
-            }
-        }
-
-        else if(!_merged) {
+        if(!_merged) {
             int[] top5Enemies = {14, 3, 5, 9, 2};
             int[] top5Level = {6, 1, 0, 5, 4};
 
@@ -210,14 +209,23 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
         double[] outputs;
 
         if(_isbestAgent)
-            outputs = population.activateBest(inputs, _numOut);
+            outputs = _population.activateBest(inputs, _numOut);
         else
-            outputs = population.activate(_curAgentNumber, inputs, _numOut);
+            outputs = _population.activate(_curAgentNumber, inputs, _numOut);
 
         //boolean[] actions = new boolean[Environment.numberOfKeys];
-        for (int i = 0; i < outputs.length; i++)
+
+        if(_LeftRightCombined){
+            action[0] = outputs[0] > 0.25;
+            action[1] = outputs[0] < -0.25;
+        }
+        for (int i = _LeftRightCombined ? 1 : 0; i < outputs.length; i++)
         {
-            action[i] = outputs[i] > 0;
+            //TODO DEBUG
+           /* if(GlobalOptions.isVisualization) {
+                System.err.printf("Output %d = %f => action = %b\n", i+1, outputs[i], outputs[i] > 0);
+            }*/
+            action[i+1] = outputs[i] > 0;
         }
         return action;
     }
@@ -328,16 +336,13 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
                 realY = 11;
                 break;
         }
-        //TODO use real values?
         return interpretScene(sceneGrid[realX][realY]);
     }
 
     /**
      *method for interpreting the levelScene
-     *  Ways:
-     *  1) simply return 0 (nothing there), 1 (something there)
-     *  2) return the real Values in the array (which are determined by the zLevel)
-     *  3) return 0 (nothing there), 1 (pickable item like coins, mushrooms,...), 2 (enemy), 3 (walls, non pass trough), 4 (spiky enemies)
+     *  return 0 (nothing there), 1 (pickable item like coins, mushrooms,...), 2 (enemy), 3 (walls, non pass trough)
+     *  falls back to the actual value, if switch fails
     */
     private double interpretScene(byte gridContent) {
         switch(gridContent){
@@ -352,17 +357,23 @@ public class CMATWEANNLearningAgent extends BasicMarioAIAgent implements Learnin
                 return 1;
             case Sprite.KIND_GOOMBA:
             case Sprite.KIND_SHELL:
-                return 2;
+            case Sprite.KIND_GOOMBA_WINGED:
+            case Sprite.KIND_RED_KOOPA_WINGED:
+            case Sprite.KIND_GREEN_KOOPA_WINGED:
+            case Sprite.KIND_RED_KOOPA:
+                //return 4;
             case Sprite.KIND_SPIKY:
-                return 4;
+                return 2;
             case GeneralizerLevelScene.BORDER_CANNOT_PASS_THROUGH:
+            case GeneralizerLevelScene.BRICK:
+            case GeneralizerLevelScene.FLOWER_POT_OR_CANNON:
             case 1: //something, not passable
                 return 3;
             default:
-                return 0;
+                return gridContent;
         }
 
-        //return (gridContent != 0) ?  _realValue ? gridContent : 1 : 0;
+        /*return (gridContent != 0) ?  _realValue ? gridContent : 1 : 0;*/
     }
 
     private double isJumpHole(byte[][] levelScene,int x) {

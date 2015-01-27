@@ -79,6 +79,14 @@ JNIEXPORT jdoubleArray JNICALL Java_de_goost_jcmatweann_CMATWEANN_activate
 JNIEXPORT jdoubleArray JNICALL Java_de_goost_jcmatweann_CMATWEANN_activateBest
   (JNIEnv *, jobject, jdoubleArray, jint);
 
+/*
+ * Class:     de_goost_jcmatweann_CMATWEANN
+ * Method:    printNetInfos
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_de_goost_jcmatweann_CMATWEANN_printNetInfos
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif
